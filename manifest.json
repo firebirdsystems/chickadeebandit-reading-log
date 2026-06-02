@@ -1,0 +1,29 @@
+{
+  "id": "reading-log",
+  "name": "Reading Log",
+  "version": "1.0.0",
+  "description": "Children log books they've read with ratings and notes. Adults see a summary across the whole family.",
+  "entrypoint": "index.html",
+  "runtime": "static",
+  "category": "kids",
+  "tags": ["reading", "kids", "education"],
+  "storage": "db",
+  "data_access": {
+    "reads": ["family.members"],
+    "writes": []
+  },
+  "permissions": {
+    "default_audience": "everyone",
+    "requires_approval": false
+  },
+  "ai_access": {
+    "allowed": true,
+    "mode": "read",
+    "db_exports": ["books_summary", "reading_stats"]
+  },
+  "resource_limits": {
+    "max_db_bytes": 52428800
+  },
+  "nav": { "label": "Reading Log" },
+  "icon": "📚"
+}

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <base href="/run/reading-log/" />
+  <title>Reading Log</title>
+  <style>
+    :root {
+      --bg: var(--hub-bg, #f9fafb);
+      --surface: var(--hub-surface, #ffffff);
+      --border: var(--hub-border, #e5e7eb);
+      --text: var(--hub-text, #111827);
+      --muted: var(--hub-text-muted, #6b7280);
+      --primary: var(--hub-primary, #2563eb);
+      --primary-fg: var(--hub-primary-fg, #ffffff);
+      --primary-hover: var(--hub-primary-hover, #1d4ed8);
+      --radius: var(--hub-radius, 10px);
+      --font: var(--hub-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+      --font-size: var(--hub-font-size, 15px);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); font-size: var(--font-size); background: var(--bg); color: var(--text); min-height: 100vh; }
+    .page { max-width: 680px; margin: 0 auto; padding: 20px 16px 48px; }
+
+    .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .header h1 { font-size: 1.4rem; font-weight: 700; }
+    .btn-primary { background: var(--primary); color: var(--primary-fg); border: none; border-radius: var(--radius); padding: 9px 16px; font-size: 0.875rem; font-weight: 600; cursor: pointer; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; text-align: center; }
+    .stat-value { font-size: 1.4rem; font-weight: 700; line-height: 1.1; }
+    .stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+
+    .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .tab { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 5px 14px; font-size: 0.85rem; cursor: pointer; color: var(--muted); }
+    .tab:hover { color: var(--text); }
+    .tab.active { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); font-weight: 600; }
+
+    .book-list { display: flex; flex-direction: column; gap: 10px; }
+    .book-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; }
+    .book-card:hover .book-actions { opacity: 1; }
+    .book-emoji { font-size: 1.6rem; flex-shrink: 0; line-height: 1; margin-top: 2px; }
+    .book-body { flex: 1; min-width: 0; }
+    .book-title { font-weight: 600; font-size: 0.95rem; }
+    .book-author { color: var(--muted); font-size: 0.82rem; margin-top: 2px; }
+    .book-meta { display: flex; align-items: center; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
+    .stars { color: #f59e0b; font-size: 0.9rem; letter-spacing: 1px; }
+    .meta-pill { font-size: 0.78rem; color: var(--muted); }
+    .member-badge { font-size: 0.73rem; background: var(--bg); border: 1px solid var(--border); padding: 2px 8px; border-radius: 10px; color: var(--muted); }
+    .book-notes { font-size: 0.82rem; color: var(--muted); margin-top: 4px; font-style: italic; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .book-actions { opacity: 0; display: flex; gap: 6px; flex-shrink: 0; transition: opacity 0.15s; align-items: flex-start; }
+    .btn-icon { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; font-size: 0.8rem; cursor: pointer; color: var(--muted); line-height: 1; }
+    .btn-icon:hover { background: var(--bg); color: var(--text); }
+    .btn-icon.danger:hover { border-color: #ef4444; color: #ef4444; }
+
+    /* Progress bar */
+    .progress-wrap { margin-top: 8px; }
+    .progress-track { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+    .progress-fill.active   { background: var(--primary); }
+    .progress-fill.finished { background: #16a34a; }
+    .progress-label { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+
+    .empty { text-align: center; padding: 48px 24px; color: var(--muted); }
+    .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+    .empty-title { font-weight: 600; color: var(--text); font-size: 1rem; margin-bottom: 6px; }
+
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+    .modal { background: var(--surface); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; }
+    .modal-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 5px; }
+    .field label .opt { color: var(--muted); font-weight: 400; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    .field-row .field { margin: 0; }
+    .field-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .field-row3 .field { margin: 0; }
+    input[type=text], input[type=number], input[type=date], textarea, select {
+      width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px;
+      font-size: 0.9rem; font-family: var(--font); background: var(--bg); color: var(--text);
+    }
+    input:focus, textarea:focus, select:focus { outline: 2px solid var(--primary); border-color: transparent; }
+    textarea { resize: vertical; min-height: 72px; }
+    .star-picker { display: flex; gap: 4px; font-size: 1.5rem; cursor: pointer; padding: 2px 0; }
+    .star-picker .star { color: #d1d5db; line-height: 1; user-select: none; transition: color 0.1s; }
+    .star-picker .star.lit { color: #f59e0b; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+    .btn-ghost { background: none; border: 1px solid var(--border); border-radius: var(--radius); padding: 9px 16px; font-size: 0.875rem; cursor: pointer; color: var(--text); }
+    .btn-ghost:hover { background: var(--bg); }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <h1>📚 Reading Log</h1>
+    <button class="btn-primary" onclick="openAddModal()">+ Add Book</button>
+  </div>
+  <div id="demo-bar" style="display:none;background:#fef9c3;border:1px solid #fde68a;border-radius:8px;padding:8px 12px;margin-bottom:16px;align-items:center;gap:8px;flex-wrap:wrap;"></div>
+  <div class="stats" id="stats"></div>
+  <div class="tabs" id="member-tabs"></div>
+  <div class="book-list" id="book-list"></div>
+</div>
+
+<script type="module">
+import { esc, isAdult, hubConfirm } from "/hub-sdk.js";
+
+const CONTEXT = window.__CONTEXT_URL ?? "";
+const DB      = window.__DB_URL ?? "";
+const ME      = window.__CURRENT_MEMBER ?? null;
+
+let demoMe        = null;
+const me          = () => demoMe ?? ME;
+
+let members        = [];
+let books          = [];
+let activeMemberId = null;
+let pendingRating  = 0;
+let modalEl        = null;
+
+async function dbq(sql, params = []) {
+  if (!DB) return { rows: [] };
+  const r = await fetch(DB, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ sql, params }),
+  });
+  return r.json();
+}
+
+async function loadMembers() {
+  if (!CONTEXT) {
+    members = [
+      { id: "d1", name: "Parent", role: "adult" },
+      { id: "d2", name: "Alex", role: "child" },
+      { id: "d3", name: "Jordan", role: "child" },
+    ];
+    return;
+  }
+  try {
+    const res = await fetch(`${CONTEXT}?keys=family.members`);
+    members = ((await res.json())["family.members"]) ?? [];
+  } catch { members = []; }
+}
+
+async function loadBooks() {
+  const { rows } = await dbq(
+    `SELECT * FROM books WHERE household_id = current_setting('app.household_id', true)::uuid ORDER BY created_at DESC`
+  );
+  if (rows?.length) {
+    books = rows;
+  } else if (!DB) {
+    books = [
+      { id: "s1", member_id: "d2", title: "Charlotte's Web", author: "E.B. White", pages: 184, current_page: null, rating: 5, finished_at: "2026-05-20", notes: "So good — I cried at the ending.", created_at: "2026-05-20", updated_at: "" },
+      { id: "s2", member_id: "d3", title: "The BFG", author: "Roald Dahl", pages: 208, current_page: null, rating: 4, finished_at: "2026-05-15", notes: "", created_at: "2026-05-15", updated_at: "" },
+      { id: "s5", member_id: "d2", title: "Harry Potter and the Goblet of Fire", author: "J.K. Rowling", pages: 734, current_page: 245, rating: null, finished_at: "", notes: "Just got to the Triwizard Tournament!", created_at: "2026-05-10", updated_at: "" },
+      { id: "s6", member_id: "d3", title: "The Hunger Games", author: "Suzanne Collins", pages: 374, current_page: 120, rating: null, finished_at: "", notes: "", created_at: "2026-05-08", updated_at: "" },
+      { id: "s3", member_id: "d2", title: "Holes", author: "Louis Sachar", pages: 233, current_page: null, rating: 5, finished_at: "2026-04-30", notes: "", created_at: "2026-04-30", updated_at: "" },
+      { id: "s4", member_id: "d3", title: "Matilda", author: "Roald Dahl", pages: 240, current_page: null, rating: 5, finished_at: "2026-04-10", notes: "My favourite book!", created_at: "2026-04-10", updated_at: "" },
+    ];
+  } else {
+    books = [];
+  }
+}
+
+const amAdult    = () => { const m = me(); return m ? isAdult(m, members) : false; };
+const memberName = id => members.find(m => m.id === id)?.name ?? "Unknown";
+
+function visibleBooks() {
+  const currentMe = me();
+  let vis;
+  if (activeMemberId) vis = books.filter(b => b.member_id === activeMemberId);
+  else if (currentMe && !isAdult(currentMe, members)) vis = books.filter(b => b.member_id === currentMe.id);
+  else vis = books;
+
+  // In-progress first, then finished sorted by most recent
+  return [...vis].sort((a, b) => {
+    const aActive = !a.finished_at;
+    const bActive = !b.finished_at;
+    if (aActive !== bActive) return aActive ? -1 : 1;
+    if (!aActive) return b.finished_at > a.finished_at ? 1 : -1;
+    return 0;
+  });
+}
+
+function fmtDate(s) {
+  if (!s) return "";
+  try { return new Date(s + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }); }
+  catch { return s; }
+}
+
+function starStr(n) { return n ? `${"★".repeat(n)}${"☆".repeat(5 - n)}` : ""; }
+
+function starPickerHtml(n) {
+  return Array.from({ length: 5 }, (_, i) =>
+    `<span class="star ${i < n ? "lit" : ""}" onclick="clickStar(${i + 1})">★</span>`
+  ).join("");
+}
+
+function progressHtml(b) {
+  const pages = b.pages || 0;
+  if (!pages) return "";
+
+  const finished = !!b.finished_at;
+  const cur = finished ? pages : (b.current_page || 0);
+  if (!finished && cur === 0) return "";
+
+  const pct = Math.min(100, Math.round((cur / pages) * 100));
+  const cls = finished ? "finished" : "active";
+  const label = finished
+    ? `✓ Finished · ${pages.toLocaleString()} pages`
+    : `Page ${cur.toLocaleString()} of ${pages.toLocaleString()} · ${pct}%`;
+
+  return `<div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill ${cls}" style="width:${pct}%"></div></div>
+    <div class="progress-label">${label}</div>
+  </div>`;
+}
+
+function renderStats() {
+  const vis      = visibleBooks();
+  const finished = vis.filter(b => b.finished_at);
+  const inProgress = vis.filter(b => !b.finished_at);
+  const pages    = finished.reduce((s, b) => s + (b.pages || 0), 0);
+  document.getElementById("stats").innerHTML = `
+    <div class="stat-card"><div class="stat-value">${finished.length}</div><div class="stat-label">Books Finished</div></div>
+    <div class="stat-card"><div class="stat-value">${pages.toLocaleString()}</div><div class="stat-label">Pages Read</div></div>
+    <div class="stat-card"><div class="stat-value">${inProgress.length}</div><div class="stat-label">In Progress</div></div>
+  `;
+}
+
+function renderTabs() {
+  const el = document.getElementById("member-tabs");
+  if (!amAdult()) { el.innerHTML = ""; return; }
+  const tabs = [{ id: null, label: "Everyone" }, ...members.map(m => ({ id: m.id, label: m.name }))];
+  el.innerHTML = tabs.map(t =>
+    `<button class="tab ${activeMemberId === t.id ? "active" : ""}" onclick="setMember(${t.id === null ? "null" : `'${esc(t.id)}'`})">${esc(t.label)}</button>`
+  ).join("");
+}
+
+function renderBooks() {
+  const el  = document.getElementById("book-list");
+  const vis = visibleBooks();
+  const showMember = amAdult() && !activeMemberId;
+
+  if (!vis.length) {
+    el.innerHTML = `<div class="empty">
+      <div class="empty-icon">📖</div>
+      <div class="empty-title">No books logged yet</div>
+      <div>Tap "+ Add Book" to get started.</div>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = vis.map(b => {
+    const canEdit  = amAdult() || b.member_id === me()?.id;
+    const finished = !!b.finished_at;
+    return `<div class="book-card">
+      <div class="book-emoji">${finished ? "📗" : "📖"}</div>
+      <div class="book-body">
+        <div class="book-title">${esc(b.title)}</div>
+        ${b.author ? `<div class="book-author">${esc(b.author)}</div>` : ""}
+        <div class="book-meta">
+          ${b.rating ? `<span class="stars">${starStr(b.rating)}</span>` : ""}
+          ${finished ? `<span class="meta-pill">${fmtDate(b.finished_at)}</span>` : ""}
+          ${showMember ? `<span class="member-badge">${esc(memberName(b.member_id))}</span>` : ""}
+        </div>
+        ${progressHtml(b)}
+        ${b.notes ? `<div class="book-notes">${esc(b.notes)}</div>` : ""}
+      </div>
+      ${canEdit ? `<div class="book-actions">
+        <button class="btn-icon" onclick="openEditModal('${esc(b.id)}')">✏️</button>
+        <button class="btn-icon danger" onclick="deleteBook('${esc(b.id)}')">🗑</button>
+      </div>` : ""}
+    </div>`;
+  }).join("");
+}
+
+function renderDemoBar() {
+  const el = document.getElementById("demo-bar");
+  if (!el) return;
+  if (CONTEXT) { el.style.display = "none"; return; }
+  el.style.display = "flex";
+  el.innerHTML = `<span style="color:#92400e;font-weight:600;font-size:0.8rem">Demo — Preview as:</span>`
+    + members.map(m => {
+      const active = demoMe?.id === m.id;
+      return `<button onclick="setDemoMe('${esc(m.id)}')" style="padding:3px 10px;border-radius:6px;font-size:0.8rem;cursor:pointer;border:1px solid ${active ? "#d97706" : "var(--border)"};background:${active ? "#fde68a" : "var(--surface)"};font-weight:${active ? "600" : "400"}">${esc(m.name)} (${m.role})</button>`;
+    }).join("");
+}
+
+window.setDemoMe = function(id) {
+  demoMe = members.find(x => x.id === id) ?? null;
+  activeMemberId = (demoMe && !isAdult(demoMe, members)) ? demoMe.id : null;
+  render();
+};
+
+function render() { renderDemoBar(); renderStats(); renderTabs(); renderBooks(); }
+
+function openModal(html) {
+  closeModal();
+  modalEl = document.createElement("div");
+  modalEl.className = "modal-backdrop";
+  modalEl.innerHTML = `<div class="modal">${html}</div>`;
+  modalEl.addEventListener("click", e => { if (e.target === modalEl) closeModal(); });
+  document.body.appendChild(modalEl);
+}
+function closeModal() { modalEl?.remove(); modalEl = null; }
+
+function memberSelectHtml(selectedId) {
+  return members.map(m =>
+    `<option value="${esc(m.id)}" ${m.id === selectedId ? "selected" : ""}>${esc(m.name)}</option>`
+  ).join("");
+}
+
+window.openAddModal = function() {
+  pendingRating = 0;
+  const forField = amAdult()
+    ? `<div class="field"><label>For</label><select id="f-member">${memberSelectHtml(activeMemberId ?? me()?.id ?? members[0]?.id)}</select></div>`
+    : "";
+  openModal(`
+    <div class="modal-title">Log a Book</div>
+    ${forField}
+    <div class="field"><label>Title <span class="opt">*</span></label><input type="text" id="f-title" placeholder="Book title" maxlength="200" /></div>
+    <div class="field"><label>Author <span class="opt">(optional)</span></label><input type="text" id="f-author" placeholder="Author name" maxlength="200" /></div>
+    <div class="field-row3">
+      <div class="field"><label>Total Pages <span class="opt">(optional)</span></label><input type="number" id="f-pages" placeholder="—" min="1" max="99999" /></div>
+      <div class="field"><label>Current Page <span class="opt">(optional)</span></label><input type="number" id="f-current-page" placeholder="—" min="0" max="99999" /></div>
+      <div class="field"><label>Date Finished <span class="opt">(optional)</span></label><input type="date" id="f-date" /></div>
+    </div>
+    <div class="field"><label>Rating <span class="opt">(optional)</span></label><div class="star-picker" id="star-picker">${starPickerHtml(0)}</div></div>
+    <div class="field"><label>Notes <span class="opt">(optional)</span></label><textarea id="f-notes" placeholder="Thoughts about the book…" maxlength="1000"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitBook(null)">Add Book</button>
+    </div>
+  `);
+  requestAnimationFrame(() => document.getElementById("f-title")?.focus());
+};
+
+window.openEditModal = function(id) {
+  const b = books.find(x => x.id === id);
+  if (!b) return;
+  pendingRating = b.rating || 0;
+  openModal(`
+    <div class="modal-title">Edit Book</div>
+    <div class="field"><label>Title <span class="opt">*</span></label><input type="text" id="f-title" value="${esc(b.title)}" maxlength="200" /></div>
+    <div class="field"><label>Author <span class="opt">(optional)</span></label><input type="text" id="f-author" value="${esc(b.author || "")}" maxlength="200" /></div>
+    <div class="field-row3">
+      <div class="field"><label>Total Pages</label><input type="number" id="f-pages" value="${b.pages || ""}" min="1" max="99999" /></div>
+      <div class="field"><label>Current Page</label><input type="number" id="f-current-page" value="${b.current_page || ""}" min="0" max="99999" /></div>
+      <div class="field"><label>Date Finished <span class="opt">(optional)</span></label><input type="date" id="f-date" value="${esc(b.finished_at || "")}" /></div>
+    </div>
+    <div class="field"><label>Rating <span class="opt">(optional)</span></label><div class="star-picker" id="star-picker">${starPickerHtml(pendingRating)}</div></div>
+    <div class="field"><label>Notes</label><textarea id="f-notes" maxlength="1000">${esc(b.notes || "")}</textarea></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitBook('${esc(id)}')">Save</button>
+    </div>
+  `);
+};
+
+window.clickStar = function(n) {
+  pendingRating = pendingRating === n ? 0 : n;
+  const el = document.getElementById("star-picker");
+  if (el) el.innerHTML = starPickerHtml(pendingRating);
+};
+
+window.setMember  = function(id) { activeMemberId = id; render(); };
+window.closeModal = closeModal;
+
+window.submitBook = async function(existingId) {
+  const title = document.getElementById("f-title").value.trim();
+  if (!title) { document.getElementById("f-title").focus(); return; }
+
+  const author      = document.getElementById("f-author")?.value.trim() ?? "";
+  const pages       = parseInt(document.getElementById("f-pages").value) || null;
+  const currentPage = parseInt(document.getElementById("f-current-page").value) || null;
+  const finishedAt  = document.getElementById("f-date").value || "";
+  const notes       = document.getElementById("f-notes").value.trim();
+  const memberId    = document.getElementById("f-member")?.value ?? me()?.id ?? "";
+
+  const btn = modalEl?.querySelector(".modal-actions .btn-primary");
+  if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
+
+  try {
+    const now = new Date().toISOString();
+    if (existingId) {
+      await dbq(
+        `UPDATE books SET title=$1, author=$2, pages=$3, current_page=$4, rating=$5, finished_at=$6, notes=$7, updated_at=$8 WHERE id=$9 AND household_id=current_setting('app.household_id',true)::uuid`,
+        [title, author, pages, currentPage, pendingRating || null, finishedAt, notes, now, existingId]
+      );
+      books = books.map(b => b.id === existingId
+        ? { ...b, title, author, pages, current_page: currentPage, rating: pendingRating || null, finished_at: finishedAt, notes, updated_at: now }
+        : b
+      );
+    } else {
+      const id = crypto.randomUUID();
+      await dbq(
+        `INSERT INTO books (id, household_id, member_id, title, author, pages, current_page, rating, finished_at, notes, created_at, updated_at) VALUES ($1, current_setting('app.household_id',true)::uuid, $2, $3, $4, $5, $6, $7, $8, $9, $10, $10)`,
+        [id, memberId, title, author, pages, currentPage, pendingRating || null, finishedAt, notes, now]
+      );
+      books.unshift({ id, member_id: memberId, title, author, pages, current_page: currentPage, rating: pendingRating || null, finished_at: finishedAt, notes, created_at: now, updated_at: now });
+    }
+    closeModal();
+    render();
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = existingId ? "Save" : "Add Book"; }
+    alert(`Error saving book: ${e.message}`);
+  }
+};
+
+window.deleteBook = async function(id) {
+  const ok = await hubConfirm({ message: "Remove this book from the log?", confirmLabel: "Remove", destructive: true });
+  if (!ok) return;
+  await dbq(`DELETE FROM books WHERE id=$1 AND household_id=current_setting('app.household_id',true)::uuid`, [id]);
+  books = books.filter(b => b.id !== id);
+  render();
+};
+
+(async () => {
+  await loadMembers();
+  if (!ME && !CONTEXT) {
+    demoMe = members.find(m => m.role === "adult") ?? members[0] ?? null;
+  }
+  if (me() && !amAdult()) activeMemberId = me().id;
+  await loadBooks();
+  render();
+})();
+</script>
+</body>
+</html>
