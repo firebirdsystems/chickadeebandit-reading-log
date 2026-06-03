@@ -166,7 +166,8 @@ async function loadBooks() {
 }
 
 const amAdult    = () => { const m = me(); return m ? isAdult(m, members) : false; };
-const memberName = id => members.find(m => m.id === id)?.name ?? "Unknown";
+let memberMap = new Map();
+const memberName = id => memberMap.get(id) ?? "Unknown";
 
 function visibleBooks() {
   const currentMe = me();
@@ -185,10 +186,14 @@ function visibleBooks() {
   });
 }
 
+const fmtDateCache = new Map();
 function fmtDate(s) {
   if (!s) return "";
-  try { return new Date(s + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }); }
-  catch { return s; }
+  if (fmtDateCache.has(s)) return fmtDateCache.get(s);
+  try {
+    const r = new Date(s + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    fmtDateCache.set(s, r); return r;
+  } catch { fmtDateCache.set(s, s); return s; }
 }
 
 function starStr(n) { return n ? `${"★".repeat(n)}${"☆".repeat(5 - n)}` : ""; }
@@ -219,10 +224,9 @@ function progressHtml(b) {
   </div>`;
 }
 
-function renderStats() {
-  const vis      = visibleBooks();
-  const finished = vis.filter(b => b.finished_at);
-  const inProgress = vis.filter(b => !b.finished_at);
+function renderStats(vis) {
+  const finished = [], inProgress = [];
+  for (const b of vis) (b.finished_at ? finished : inProgress).push(b);
   const pages    = finished.reduce((s, b) => s + (b.pages || 0), 0);
   document.getElementById("stats").innerHTML = `
     <div class="stat-card"><div class="stat-value">${finished.length}</div><div class="stat-label">Books Finished</div></div>
@@ -240,9 +244,8 @@ function renderTabs() {
   ).join("");
 }
 
-function renderBooks() {
+function renderBooks(vis) {
   const el  = document.getElementById("book-list");
-  const vis = visibleBooks();
   const showMember = amAdult() && !activeMemberId;
 
   if (!vis.length) {
@@ -296,7 +299,7 @@ window.setDemoMe = function(id) {
   render();
 };
 
-function render() { renderDemoBar(); renderStats(); renderTabs(); renderBooks(); }
+function render() { const vis = visibleBooks(); renderDemoBar(); renderStats(vis); renderTabs(); renderBooks(vis); }
 
 function openModal(html) {
   closeModal();
@@ -414,13 +417,14 @@ window.submitBook = async function(existingId) {
 window.deleteBook = async function(id) {
   const ok = await hubConfirm({ message: "Remove this book from the log?", confirmLabel: "Remove", destructive: true });
   if (!ok) return;
-  await dbq(`DELETE FROM books WHERE id=$1 AND household_id=current_setting('app.household_id',true)::uuid`, [id]);
   books = books.filter(b => b.id !== id);
   render();
+  await dbq(`DELETE FROM books WHERE id=$1 AND household_id=current_setting('app.household_id',true)::uuid`, [id]);
 };
 
 (async () => {
   await loadMembers();
+  memberMap = new Map(members.map(m => [m.id, m.name]));
   if (!ME && !CONTEXT) {
     demoMe = members.find(m => m.role === "adult") ?? members[0] ?? null;
   }
