@@ -7,7 +7,6 @@ SELECT
   b.rating,
   b.finished_at,
   b.notes
-FROM books b
-WHERE b.household_id = current_setting('app.household_id', true)::uuid
+FROM app_reading_log__books b
 ORDER BY b.finished_at DESC
 LIMIT 200

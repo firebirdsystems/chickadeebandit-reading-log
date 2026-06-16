@@ -1,6 +1,5 @@
-CREATE TABLE IF NOT EXISTS books (
+CREATE TABLE IF NOT EXISTS app_reading_log__books (
   id           TEXT    NOT NULL,
-  household_id UUID    NOT NULL DEFAULT current_setting('app.household_id', true)::uuid,
   member_id    TEXT    NOT NULL,
   title        TEXT    NOT NULL,
   author       TEXT    NOT NULL DEFAULT '',
@@ -11,5 +10,5 @@ CREATE TABLE IF NOT EXISTS books (
   notes        TEXT    NOT NULL DEFAULT '',
   created_at   TEXT    NOT NULL,
   updated_at   TEXT    NOT NULL,
-  PRIMARY KEY (household_id, id)
+  PRIMARY KEY (id)
 )
