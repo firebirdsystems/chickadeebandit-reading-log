@@ -391,7 +391,7 @@ window.submitBook = async function(existingId) {
     const now = new Date().toISOString();
     if (existingId) {
       await dbq(
-        `UPDATE app_reading_log__books SET title=$1, author=$2, pages=$3, current_page=$4, rating=$5, finished_at=$6, notes=$7, updated_at=$8 WHERE id=$9`,
+        `UPDATE app_reading_log__books SET title=?, author=?, pages=?, current_page=?, rating=?, finished_at=?, notes=?, updated_at=? WHERE id=?`,
         [title, author, pages, currentPage, pendingRating || null, finishedAt, notes, now, existingId]
       );
       books = books.map(b => b.id === existingId
@@ -401,8 +401,8 @@ window.submitBook = async function(existingId) {
     } else {
       const id = crypto.randomUUID();
       await dbq(
-        `INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, notes, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $10)`,
-        [id, memberId, title, author, pages, currentPage, pendingRating || null, finishedAt, notes, now]
+        `INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [id, memberId, title, author, pages, currentPage, pendingRating || null, finishedAt, notes, now, now]
       );
       books.unshift({ id, member_id: memberId, title, author, pages, current_page: currentPage, rating: pendingRating || null, finished_at: finishedAt, notes, created_at: now, updated_at: now });
     }

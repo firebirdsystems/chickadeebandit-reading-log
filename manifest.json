@@ -21,6 +21,13 @@
     "mode": "read",
     "db_exports": ["books_summary", "reading_stats"]
   },
+  "row_policies": {
+    "app_reading_log__books": {
+      "kind": "owner_only",
+      "member_column": "member_id",
+      "adults_bypass": true
+    }
+  },
   "resource_limits": {
     "max_db_bytes": 52428800
   },
