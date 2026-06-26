@@ -1,7 +1,7 @@
 {
   "id": "reading-log",
   "name": "Reading Log",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Children log books they've read with ratings and notes. Adults see a summary across the whole family.",
   "entrypoint": "index.html",
   "runtime": "static",
@@ -22,7 +22,7 @@
     "db_exports": ["books_summary", "reading_stats"]
   },
   "row_policies": {
-    "app_reading_log__books": {
+    "books": {
       "kind": "owner_only",
       "member_column": "member_id",
       "adults_bypass": true
