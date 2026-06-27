@@ -105,7 +105,7 @@
 </div>
 
 <script type="module">
-import { esc, isAdult, hubConfirm } from "/hub-sdk.js";
+import { hubAlert, esc, isAdult, hubConfirm } from "/hub-sdk.js";
 
 const CONTEXT = window.__CONTEXT_URL ?? "";
 const DB      = window.__DB_URL ?? "";
@@ -410,7 +410,7 @@ window.submitBook = async function(existingId) {
     render();
   } catch (e) {
     if (btn) { btn.disabled = false; btn.textContent = existingId ? "Save" : "Add Book"; }
-    alert(`Error saving book: ${e.message}`);
+    hubAlert(`Error saving book: ${e.message}`);
   }
 };
 
