@@ -111,6 +111,13 @@ const CONTEXT = window.__CONTEXT_URL ?? "";
 const DB      = window.__DB_URL ?? "";
 const ME      = window.__CURRENT_MEMBER ?? null;
 
+// Neutralize DB-derived ids before interpolating into inline on* handlers: a
+// child can INSERT a book with an attacker-chosen id via raw /api/db, and HTML
+// escaping does not protect a JS-string context inside an attribute (the payload
+// would then run in an adult's browser, which renders every member's rows). Legit
+// ids are UUIDs, so restricting to [A-Za-z0-9_-] is lossless and injection-proof.
+const sid = v => String(v ?? "").replace(/[^A-Za-z0-9_-]/g, "");
+
 let demoMe        = null;
 const me          = () => demoMe ?? ME;
 
@@ -274,8 +281,8 @@ function renderBooks(vis) {
         ${b.notes ? `<div class="book-notes">${esc(b.notes)}</div>` : ""}
       </div>
       ${canEdit ? `<div class="book-actions">
-        <button class="btn-icon" onclick="openEditModal('${esc(b.id)}')">✏️</button>
-        <button class="btn-icon danger" onclick="deleteBook('${esc(b.id)}')">🗑</button>
+        <button class="btn-icon" onclick="openEditModal('${sid(b.id)}')">✏️</button>
+        <button class="btn-icon danger" onclick="deleteBook('${sid(b.id)}')">🗑</button>
       </div>` : ""}
     </div>`;
   }).join("");
@@ -359,7 +366,7 @@ window.openEditModal = function(id) {
     <div class="field"><label>Notes</label><textarea id="f-notes" maxlength="1000">${esc(b.notes || "")}</textarea></div>
     <div class="modal-actions">
       <button class="btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn-primary" onclick="submitBook('${esc(id)}')">Save</button>
+      <button class="btn-primary" onclick="submitBook('${sid(id)}')">Save</button>
     </div>
   `);
 };
