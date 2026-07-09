@@ -106,6 +106,10 @@
 
 <script type="module">
 import { hubAlert, esc, isAdult, hubConfirm } from "/hub-sdk.js";
+import {
+  sid, memberName as memberNameOf, visibleBooks as visibleBooksOf,
+  formatDate, starStr, bookProgress, readingStats,
+} from "./logic.js";
 
 const CONTEXT = window.__CONTEXT_URL ?? "";
 const DB      = window.__DB_URL ?? "";
@@ -116,8 +120,6 @@ const ME      = window.__CURRENT_MEMBER ?? null;
 // escaping does not protect a JS-string context inside an attribute (the payload
 // would then run in an adult's browser, which renders every member's rows). Legit
 // ids are UUIDs, so restricting to [A-Za-z0-9_-] is lossless and injection-proof.
-const sid = v => String(v ?? "").replace(/[^A-Za-z0-9_-]/g, "");
-
 let demoMe        = null;
 const me          = () => demoMe ?? ME;
 
@@ -174,36 +176,18 @@ async function loadBooks() {
 
 const amAdult    = () => { const m = me(); return m ? isAdult(m, members) : false; };
 let memberMap = new Map();
-const memberName = id => memberMap.get(id) ?? "Unknown";
+const memberName = id => memberNameOf(memberMap, id);
 
-function visibleBooks() {
-  const currentMe = me();
-  let vis;
-  if (activeMemberId) vis = books.filter(b => b.member_id === activeMemberId);
-  else if (currentMe && !isAdult(currentMe, members)) vis = books.filter(b => b.member_id === currentMe.id);
-  else vis = books;
-
-  // In-progress first, then finished sorted by most recent
-  return [...vis].sort((a, b) => {
-    const aActive = !a.finished_at;
-    const bActive = !b.finished_at;
-    if (aActive !== bActive) return aActive ? -1 : 1;
-    if (!aActive) return b.finished_at > a.finished_at ? 1 : -1;
-    return 0;
-  });
-}
+function visibleBooks() { return visibleBooksOf(books, activeMemberId, me()); }
 
 const fmtDateCache = new Map();
 function fmtDate(s) {
   if (!s) return "";
   if (fmtDateCache.has(s)) return fmtDateCache.get(s);
-  try {
-    const r = new Date(s + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
-    fmtDateCache.set(s, r); return r;
-  } catch { fmtDateCache.set(s, s); return s; }
+  const r = formatDate(s);
+  fmtDateCache.set(s, r);
+  return r;
 }
-
-function starStr(n) { return n ? `${"★".repeat(n)}${"☆".repeat(5 - n)}` : ""; }
 
 function starPickerHtml(n) {
   return Array.from({ length: 5 }, (_, i) =>
@@ -212,33 +196,20 @@ function starPickerHtml(n) {
 }
 
 function progressHtml(b) {
-  const pages = b.pages || 0;
-  if (!pages) return "";
-
-  const finished = !!b.finished_at;
-  const cur = finished ? pages : (b.current_page || 0);
-  if (!finished && cur === 0) return "";
-
-  const pct = Math.min(100, Math.round((cur / pages) * 100));
-  const cls = finished ? "finished" : "active";
-  const label = finished
-    ? `✓ Finished · ${pages.toLocaleString()} pages`
-    : `Page ${cur.toLocaleString()} of ${pages.toLocaleString()} · ${pct}%`;
-
+  const p = bookProgress(b);
+  if (!p) return "";
   return `<div class="progress-wrap">
-    <div class="progress-track"><div class="progress-fill ${cls}" style="width:${pct}%"></div></div>
-    <div class="progress-label">${label}</div>
+    <div class="progress-track"><div class="progress-fill ${p.cls}" style="width:${p.pct}%"></div></div>
+    <div class="progress-label">${p.label}</div>
   </div>`;
 }
 
 function renderStats(vis) {
-  const finished = [], inProgress = [];
-  for (const b of vis) (b.finished_at ? finished : inProgress).push(b);
-  const pages    = finished.reduce((s, b) => s + (b.pages || 0), 0);
+  const { finishedCount, inProgressCount, pages } = readingStats(vis);
   document.getElementById("stats").innerHTML = `
-    <div class="stat-card"><div class="stat-value">${finished.length}</div><div class="stat-label">Books Finished</div></div>
+    <div class="stat-card"><div class="stat-value">${finishedCount}</div><div class="stat-label">Books Finished</div></div>
     <div class="stat-card"><div class="stat-value">${pages.toLocaleString()}</div><div class="stat-label">Pages Read</div></div>
-    <div class="stat-card"><div class="stat-value">${inProgress.length}</div><div class="stat-label">In Progress</div></div>
+    <div class="stat-card"><div class="stat-value">${inProgressCount}</div><div class="stat-label">In Progress</div></div>
   `;
 }
 
