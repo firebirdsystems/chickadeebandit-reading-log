@@ -175,6 +175,14 @@ async function loadBooks() {
 }
 
 const amAdult    = () => { const m = me(); return m ? isAdult(m, members) : false; };
+const IS_ADMIN   = window.__IS_ADMIN === true;
+const IS_ROSTER  = window.__SPACE_KIND === "roster";
+// Supervision — see across everyone, edit others, and log on someone's behalf.
+// In a roster (classroom) that's the steward (teacher) alone: every other
+// member, adult or not, sees and logs only their own reading. Elsewhere any
+// adult supervises. Matches the hub owner_only + adults_bypass policy, where
+// the bypass is steward-only in a space (isSupervisor === isAdmin).
+const canSupervise = () => IS_ROSTER ? IS_ADMIN : amAdult();
 let memberMap = new Map();
 const memberName = id => memberNameOf(memberMap, id);
 
@@ -215,7 +223,7 @@ function renderStats(vis) {
 
 function renderTabs() {
   const el = document.getElementById("member-tabs");
-  if (!amAdult()) { el.innerHTML = ""; return; }
+  if (!canSupervise()) { el.innerHTML = ""; return; }
   const tabs = [{ id: null, label: "Everyone" }, ...members.map(m => ({ id: m.id, label: m.name }))];
   el.innerHTML = tabs.map(t =>
     `<button class="tab ${activeMemberId === t.id ? "active" : ""}" onclick="setMember(${t.id === null ? "null" : `'${esc(t.id)}'`})">${esc(t.label)}</button>`
@@ -224,7 +232,7 @@ function renderTabs() {
 
 function renderBooks(vis) {
   const el  = document.getElementById("book-list");
-  const showMember = amAdult() && !activeMemberId;
+  const showMember = canSupervise() && !activeMemberId;
 
   if (!vis.length) {
     el.innerHTML = `<div class="empty">
@@ -236,7 +244,7 @@ function renderBooks(vis) {
   }
 
   el.innerHTML = vis.map(b => {
-    const canEdit  = amAdult() || b.member_id === me()?.id;
+    const canEdit  = canSupervise() || b.member_id === me()?.id;
     const finished = !!b.finished_at;
     return `<div class="book-card">
       <div class="book-emoji">${finished ? "📗" : "📖"}</div>
@@ -297,7 +305,7 @@ function memberSelectHtml(selectedId) {
 
 window.openAddModal = function() {
   pendingRating = 0;
-  const forField = amAdult()
+  const forField = canSupervise()
     ? `<div class="field"><label>For</label><select id="f-member">${memberSelectHtml(activeMemberId ?? me()?.id ?? members[0]?.id)}</select></div>`
     : "";
   openModal(`
@@ -409,7 +417,7 @@ window.deleteBook = async function(id) {
   if (!ME && !CONTEXT) {
     demoMe = members.find(m => m.role === "adult") ?? members[0] ?? null;
   }
-  if (me() && !amAdult()) activeMemberId = me().id;
+  if (me() && !canSupervise()) activeMemberId = me().id;
   await loadBooks();
   render();
 })();
