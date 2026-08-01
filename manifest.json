@@ -23,6 +23,12 @@
     "mode": "read",
     "db_exports": ["books_summary", "reading_stats"]
   },
+    "member_references": {
+      "books": {
+        "column": "member_id",
+        "on_removed": "delete"
+      }
+    },
   "row_policies": {
     "books": {
       "kind": "owner_only",
