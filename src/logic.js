@@ -66,3 +66,13 @@ export function readingStats(books) {
   const pages = finished.reduce((s, b) => s + (b.pages || 0), 0);
   return { finishedCount: finished.length, inProgressCount: inProgress.length, pages };
 }
+
+/**
+ * Fields the in-app search matches against (see hub-sdk `searchMatch`).
+ * Author and notes both count — a reading log is searched for "that
+ * one by Le Guin" or for what someone wrote about a book, not only for
+ * an exactly-remembered title.
+ */
+export function searchableFields(item) {
+  return [item.title, item.author, item.notes];
+}

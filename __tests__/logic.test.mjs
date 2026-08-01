@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
-  sid, memberName, visibleBooks, formatDate, starStr, bookProgress, readingStats,
+  sid, memberName, visibleBooks, formatDate, starStr, bookProgress, readingStats, searchableFields,
 } from "../src/logic.js";
 
 describe("sid", () => {
@@ -69,5 +69,13 @@ describe("readingStats", () => {
       { finished_at: "y", pages: 50 },
     ];
     expect(readingStats(books)).toEqual({ finishedCount: 2, inProgressCount: 1, pages: 150 });
+  });
+});
+
+describe("searchableFields", () => {
+  it("matches on author and notes, not just the title", () => {
+    const fields = searchableFields({ title: "A Wizard of Earthsea", author: "Le Guin", notes: "read aloud at bedtime" });
+    expect(fields).toContain("Le Guin");
+    expect(fields).toContain("read aloud at bedtime");
   });
 });

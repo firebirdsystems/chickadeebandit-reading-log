@@ -90,6 +90,13 @@
     .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
     .btn-ghost { background: none; border: 1px solid var(--border); border-radius: var(--radius); padding: 9px 16px; font-size: 0.875rem; cursor: pointer; color: var(--text); }
     .btn-ghost:hover { background: var(--bg); }
+    .search-row { margin-bottom: 12px; }
+    .search-input {
+      width: 100%; border: 1.5px solid var(--border-mid, var(--border, #d1d5db));
+      border-radius: 8px; padding: 9px 11px; font: inherit;
+      background: var(--surface, var(--card, #fff)); color: var(--text, inherit);
+    }
+    .search-input:focus { outline: none; border-color: var(--accent, #6366f1); }
   </style>
 </head>
 <body>
@@ -101,14 +108,17 @@
   <div id="demo-bar" style="display:none;background:#fef9c3;border:1px solid #fde68a;border-radius:8px;padding:8px 12px;margin-bottom:16px;align-items:center;gap:8px;flex-wrap:wrap;"></div>
   <div class="stats" id="stats"></div>
   <div class="tabs" id="member-tabs"></div>
+  <div class="search-row" id="search-row" style="display:none">
+    <input id="search" class="search-input" type="search" placeholder="Search books…" aria-label="Search books" />
+  </div>
   <div class="book-list" id="book-list"></div>
 </div>
 
 <script type="module">
-import { hubAlert, esc, isAdult, hubConfirm } from "/hub-sdk.js";
+import { hubAlert, esc, isAdult, hubConfirm, searchMatch } from "/hub-sdk.js";
 import {
   sid, memberName as memberNameOf, visibleBooks as visibleBooksOf,
-  formatDate, starStr, bookProgress, readingStats,
+  formatDate, starStr, bookProgress, readingStats, searchableFields,
 } from "./logic.js";
 
 const CONTEXT = window.__CONTEXT_URL ?? "";
@@ -126,6 +136,7 @@ const me          = () => demoMe ?? ME;
 let members        = [];
 let books          = [];
 let activeMemberId = null;
+let searchQ = "";       // in-app search (see logic.js searchableFields)
 let pendingRating  = 0;
 let modalEl        = null;
 
@@ -234,8 +245,18 @@ function renderBooks(vis) {
   const el  = document.getElementById("book-list");
   const showMember = canSupervise() && !activeMemberId;
 
-  if (!vis.length) {
-    el.innerHTML = `<div class="empty">
+  // The box is only worth showing once there is a shelf to search.
+  const searchRow = document.getElementById("search-row");
+  if (searchRow) searchRow.style.display = vis.length ? "" : "none";
+  const shown = searchQ ? vis.filter(b => searchMatch(searchQ, searchableFields(b))) : vis;
+
+  if (!shown.length) {
+    el.innerHTML = searchQ
+      ? `<div class="empty">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-title">No books match "${esc(searchQ)}"</div>
+    </div>`
+      : `<div class="empty">
       <div class="empty-icon">📖</div>
       <div class="empty-title">No books logged yet</div>
       <div>Tap "+ Add Book" to get started.</div>
@@ -243,7 +264,7 @@ function renderBooks(vis) {
     return;
   }
 
-  el.innerHTML = vis.map(b => {
+  el.innerHTML = shown.map(b => {
     const canEdit  = canSupervise() || b.member_id === me()?.id;
     const finished = !!b.finished_at;
     return `<div class="book-card">
@@ -286,6 +307,13 @@ window.setDemoMe = function(id) {
 };
 
 function render() { const vis = visibleBooks(); renderDemoBar(); renderStats(vis); renderTabs(); renderBooks(vis); }
+
+// Only the book list is redrawn on each keystroke, so the box keeps focus.
+document.addEventListener("input", (e) => {
+  if (e.target.id !== "search") return;
+  searchQ = e.target.value;
+  renderBooks(visibleBooks());
+});
 
 function openModal(html) {
   closeModal();
