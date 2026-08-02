@@ -29,6 +29,18 @@
         "on_removed": "delete"
       }
     },
+  "glance": {
+    "source": {
+      "kind": "sql",
+      "query": "SELECT COUNT(*) AS value FROM app_reading_log__books WHERE member_id = :me AND finished_at <> '' AND finished_at >= substr(:today, 1, 4) || '-01-01' LIMIT 1"
+    },
+    "display": {
+      "template": "stat",
+      "value": "value",
+      "label": "books finished this year",
+      "empty_hides": true
+    }
+  },
   "row_policies": {
     "books": {
       "kind": "owner_only",
