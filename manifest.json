@@ -1,7 +1,7 @@
 {
   "id": "reading-log",
   "name": "Reading Log",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Children log books they've read with ratings and notes. Adults see a summary across the whole family.",
   "entrypoint": "index.html",
   "runtime": "static",
@@ -51,6 +51,7 @@
   "resource_limits": {
     "max_db_bytes": 52428800
   },
+  "publishes": ["reading.book_finished"],
   "nav": { "label": "Reading Log" },
   "icon": "📚"
 }

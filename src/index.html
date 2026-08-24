@@ -124,6 +124,7 @@ import {
 const CONTEXT = window.__CONTEXT_URL ?? "";
 const DB      = window.__DB_URL ?? "";
 const ME      = window.__CURRENT_MEMBER ?? null;
+const EVENTS_URL = window.__EVENTS_URL ?? "/api/events";
 
 // Neutralize DB-derived ids before interpolating into inline on* handlers: a
 // child can INSERT a book with an attacker-chosen id via raw /api/db, and HTML
@@ -148,6 +149,20 @@ async function dbq(sql, params = []) {
     body: JSON.stringify({ sql, params }),
   });
   return r.json();
+}
+
+/**
+ * Fire-and-forget publish. Identifiers only — never the title or notes. Books
+ * are `owner_only`, so a member's reading list is theirs; the bus is
+ * household-wide.
+ */
+async function publishEvent(type, subjectId, payload = {}) {
+  if (!EVENTS_URL) return;
+  await fetch(EVENTS_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type, subject_id: subjectId, payload }),
+  }).catch(() => {});
 }
 
 async function loadMembers() {
@@ -403,6 +418,10 @@ window.submitBook = async function(existingId) {
 
   try {
     const now = new Date().toISOString();
+    // A finish is announced on the transition only: editing an already-finished
+    // book's notes must not re-fire it for a consumer counting finishes.
+    const wasFinished = existingId ? !!books.find(b => b.id === existingId)?.finished_at : false;
+    let savedId = existingId;
     if (existingId) {
       await dbq(
         `UPDATE app_reading_log__books SET title=?, author=?, pages=?, current_page=?, rating=?, finished_at=?, notes=?, updated_at=? WHERE id=?`,
@@ -414,6 +433,7 @@ window.submitBook = async function(existingId) {
       );
     } else {
       const id = crypto.randomUUID();
+      savedId = id;
       await dbq(
         `INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [id, memberId, title, author, pages, currentPage, pendingRating || null, finishedAt, notes, now, now]
@@ -422,6 +442,15 @@ window.submitBook = async function(existingId) {
     }
     closeModal();
     render();
+    if (finishedAt && !wasFinished && savedId) {
+      publishEvent("reading.book_finished", savedId, {
+        book_id: savedId,
+        member_id: memberId || undefined,
+        pages: pages ?? undefined,
+        rating: pendingRating || undefined,
+        finished_at: finishedAt,
+      });
+    }
   } catch (e) {
     if (btn) { btn.disabled = false; btn.textContent = existingId ? "Save" : "Add Book"; }
     hubAlert(`Error saving book: ${e.message}`);
