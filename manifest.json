@@ -8,6 +8,9 @@
   "category": "kids",
   "tags": ["reading", "kids", "education"],
   "storage": "db",
+  "preload": {
+    "books": {"sql": "SELECT * FROM app_reading_log__books ORDER BY created_at DESC"}
+  },
   "db_encryption": "off",
   "contexts": ["household", "shared_space", "shared_space.roster"],
   "data_access": {
