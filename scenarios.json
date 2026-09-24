@@ -1,0 +1,102 @@
+{
+  "scenarios": [
+    {
+      "name": "a child sees and edits only their own books; an adult sees the whole family's",
+      "members": { "parent": "adult", "kidA": "child", "kidB": "child" },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, rating, finished_at, created_at, updated_at) VALUES ('bk_a', ?, 'Charlotte''s Web', 'E. B. White', 184, 5, '2026-01-05', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z'), ('bk_b', ?, 'Hatchet', 'Gary Paulsen', 195, 4, '2026-01-06', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')",
+          "params": ["{{kidA}}", "{{kidB}}"]
+        },
+        {
+          "action": "db",
+          "as": "kidA",
+          "sql": "SELECT id FROM app_reading_log__books",
+          "expect": { "status": 200, "rowCount": 1, "rowsContain": [{ "id": "bk_a" }] }
+        },
+        {
+          "action": "db",
+          "as": "kidA",
+          "sql": "UPDATE app_reading_log__books SET rating = 1 WHERE id = 'bk_b'"
+        },
+        {
+          "action": "db",
+          "as": "kidA",
+          "sql": "UPDATE app_reading_log__books SET current_page = 100 WHERE id = 'bk_a'",
+          "expect": { "status": 200 }
+        },
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "SELECT id, rating, current_page FROM app_reading_log__books",
+          "expect": {
+            "status": 200,
+            "rowCount": 2,
+            "rowsContain": [
+              { "id": "bk_a", "current_page": 100 },
+              { "id": "bk_b", "rating": 4 }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "a child cannot log a book under a sibling's name — the owner column is forced to the caller",
+      "members": { "kidA": "child", "kidB": "child" },
+      "steps": [
+        {
+          "action": "db",
+          "as": "kidA",
+          "sql": "INSERT INTO app_reading_log__books (id, member_id, title, created_at, updated_at) VALUES ('bk_forged', ?, 'Matilda', '2026-01-02T00:00:00Z', '2026-01-02T00:00:00Z')",
+          "params": ["{{kidB}}"],
+          "expect": { "status": 200 }
+        },
+        {
+          "action": "db",
+          "as": "kidB",
+          "sql": "SELECT id FROM app_reading_log__books",
+          "expect": { "status": 200, "rowCount": 0 }
+        },
+        {
+          "action": "db",
+          "as": "kidA",
+          "sql": "SELECT id FROM app_reading_log__books",
+          "expect": { "status": 200, "rowCount": 1, "rowsContain": [{ "id": "bk_forged" }] }
+        }
+      ]
+    },
+    {
+      "name": "reading_stats totals books, pages, and ratings per reader; a child's export covers only themselves",
+      "members": { "parent": "adult", "kidA": "child", "kidB": "child" },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_reading_log__books (id, member_id, title, pages, rating, finished_at, created_at, updated_at) VALUES ('a1', ?, 'Book One', 100, 4, '2026-01-03', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z'), ('a2', ?, 'Book Two', 200, 5, '2026-01-09', '2026-01-02T00:00:00Z', '2026-01-02T00:00:00Z'), ('b1', ?, 'Book Three', 50, 3, '2026-01-04', '2026-01-02T00:00:00Z', '2026-01-02T00:00:00Z')",
+          "params": ["{{kidA}}", "{{kidA}}", "{{kidB}}"]
+        },
+        {
+          "action": "named",
+          "as": "parent",
+          "kind": "query",
+          "name": "reading_stats",
+          "expect": {
+            "status": 200,
+            "rowCount": 2,
+            "rowsContain": [
+              { "total_books": 2, "total_pages": 300, "avg_rating": 4.5, "last_finished": "2026-01-09" },
+              { "total_books": 1, "total_pages": 50, "avg_rating": 3, "last_finished": "2026-01-04" }
+            ]
+          }
+        },
+        {
+          "action": "named",
+          "as": "kidB",
+          "kind": "query",
+          "name": "books_summary",
+          "expect": { "status": 200, "rowCount": 1, "rowsContain": [{ "id": "b1", "title": "Book Three" }] }
+        }
+      ]
+    }
+  ]
+}
