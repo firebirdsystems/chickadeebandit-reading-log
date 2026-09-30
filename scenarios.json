@@ -97,6 +97,65 @@
           "expect": { "status": 200, "rowCount": 1, "rowsContain": [{ "id": "b1", "title": "Book Three" }] }
         }
       ]
+    },
+    {
+      "name": "in a shared space a participant adult sees and edits only their own books, while the steward reaches every member's",
+      "context": "shared_space",
+      "members": { "a": "adult", "b": "adult", "steward": "admin" },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_reading_log__books (id, member_id, title, created_at, updated_at) VALUES ('bk-a', ?, 'Dune', '2026-08-01T09:00:00Z', '2026-08-01T09:00:00Z')",
+          "params": ["{{a}}"]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_reading_log__books (id, member_id, title, created_at, updated_at) VALUES ('bk-b', ?, 'Emma', '2026-08-01T09:00:00Z', '2026-08-01T09:00:00Z')",
+          "params": ["{{b}}"]
+        },
+        {
+          "action": "db",
+          "as": "a",
+          "sql": "SELECT id FROM app_reading_log__books ORDER BY id",
+          "expect": { "status": 200, "rowCount": 1, "rowsContain": [{ "id": "bk-a" }] }
+        },
+        {
+          "action": "db",
+          "as": "a",
+          "sql": "UPDATE app_reading_log__books SET current_page = 99 WHERE id = 'bk-b'",
+          "expect": { "status": 200 }
+        },
+        {
+          "action": "db",
+          "as": "a",
+          "sql": "DELETE FROM app_reading_log__books WHERE id = 'bk-b'",
+          "expect": { "status": 200 }
+        },
+        {
+          "action": "db",
+          "as": "b",
+          "sql": "SELECT id, current_page FROM app_reading_log__books",
+          "expect": { "status": 200, "rowCount": 1, "rowsContain": [{ "id": "bk-b", "current_page": null }] }
+        },
+        {
+          "action": "db",
+          "as": "steward",
+          "sql": "SELECT id FROM app_reading_log__books ORDER BY id",
+          "expect": { "status": 200, "rowCount": 2, "rowsContain": [{ "id": "bk-a" }, { "id": "bk-b" }] }
+        },
+        {
+          "action": "db",
+          "as": "steward",
+          "sql": "UPDATE app_reading_log__books SET current_page = 42 WHERE id = 'bk-b'",
+          "expect": { "status": 200 }
+        },
+        {
+          "action": "db",
+          "as": "b",
+          "sql": "SELECT current_page FROM app_reading_log__books WHERE id = 'bk-b'",
+          "expect": { "status": 200, "rowCount": 1, "rowsContain": [{ "current_page": 42 }] }
+        }
+      ]
     }
   ]
 }
