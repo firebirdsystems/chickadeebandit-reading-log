@@ -1,0 +1,289 @@
+{
+ "seed": [
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, notes, created_at, updated_at) VALUES (?, ?, ?, ?, 502, 214, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','-0 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-0 days','-0 minutes'))",
+   "params": [
+    "rlb-01",
+    "{{me}}",
+    "The Overstory",
+    "Richard Powers",
+    "Slow start, but the Hoel chestnut chapter got me."
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, notes, created_at, updated_at) VALUES (?, ?, ?, ?, 416, 388, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-7 days','-11 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','-5 minutes'))",
+   "params": [
+    "rlb-02",
+    "{{me}}",
+    "Tomorrow, and Tomorrow, and Tomorrow",
+    "Gabrielle Zevin",
+    "Nearly done — saving the last chapters for the weekend."
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, created_at, updated_at) VALUES (?, ?, ?, ?, 408, 96, NULL, strftime('%Y-%m-%dT%H:%M:%fZ','now','-11 days','-22 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','-10 minutes'))",
+   "params": [
+    "rlb-03",
+    "{{me}}",
+    "Braiding Sweetgrass",
+    "Robin Wall Kimmerer"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, notes, created_at, updated_at) VALUES (?, ?, ?, ?, 310, 142, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-15 days','-33 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','-15 minutes'))",
+   "params": [
+    "rlb-04",
+    "{{me}}",
+    "The Hobbit",
+    "J.R.R. Tolkien",
+    "Bedtime read-aloud. We are at the riddles."
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, created_at, updated_at) VALUES (?, ?, ?, ?, 320, 41, NULL, strftime('%Y-%m-%dT%H:%M:%fZ','now','-19 days','-44 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','-20 minutes'))",
+   "params": [
+    "rlb-05",
+    "{{me}}",
+    "Atomic Habits",
+    "James Clear"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, notes, created_at, updated_at) VALUES (?, ?, ?, ?, 183, NULL, NULL, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-23 days','-55 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','-25 minutes'))",
+   "params": [
+    "rlb-06",
+    "{{me}}",
+    "A Wizard of Earthsea",
+    "Ursula K. Le Guin",
+    "On the shelf for after The Hobbit."
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, notes, created_at, updated_at) VALUES (?, ?, ?, ?, 496, NULL, 5, date('now','-2 days'), ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-14 days','-66 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','-30 minutes'))",
+   "params": [
+    "rlb-07",
+    "{{me}}",
+    "Project Hail Mary",
+    "Andy Weir",
+    "Rocky is the best character I have read in years."
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, notes, created_at, updated_at) VALUES (?, ?, ?, ?, 272, NULL, 5, date('now','-6 days'), ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-18 days','-77 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-6 days','-35 minutes'))",
+   "params": [
+    "rlb-08",
+    "{{me}}",
+    "Piranesi",
+    "Susanna Clarke",
+    "Strange and lovely. Want to reread it already."
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, created_at, updated_at) VALUES (?, ?, ?, ?, 382, NULL, 4, date('now','-9 days'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-21 days','-88 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-9 days','-40 minutes'))",
+   "params": [
+    "rlb-09",
+    "{{me}}",
+    "The Thursday Murder Club",
+    "Richard Osman"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, notes, created_at, updated_at) VALUES (?, ?, ?, ?, 303, NULL, 4, date('now','-13 days'), ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-25 days','-99 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-13 days','-45 minutes'))",
+   "params": [
+    "rlb-10",
+    "{{me}}",
+    "Klara and the Sun",
+    "Kazuo Ishiguro",
+    "Quietly devastating."
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, notes, created_at, updated_at) VALUES (?, ?, ?, ?, 184, NULL, 5, date('now','-16 days'), ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-28 days','-110 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-16 days','-50 minutes'))",
+   "params": [
+    "rlb-11",
+    "{{me}}",
+    "Charlotte's Web",
+    "E.B. White",
+    "Read aloud. Everyone cried at the ending."
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, created_at, updated_at) VALUES (?, ?, ?, ?, 390, NULL, 4, date('now','-20 days'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-32 days','-121 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-20 days','-55 minutes'))",
+   "params": [
+    "rlb-12",
+    "{{me}}",
+    "Lessons in Chemistry",
+    "Bonnie Garmus"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, notes, created_at, updated_at) VALUES (?, ?, ?, ?, 304, NULL, 3, date('now','-24 days'), ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-36 days','-132 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-24 days','-60 minutes'))",
+   "params": [
+    "rlb-13",
+    "{{me}}",
+    "The Midnight Library",
+    "Matt Haig",
+    "Good premise, a bit neat at the end."
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, created_at, updated_at) VALUES (?, ?, ?, ?, 334, NULL, 5, date('now','-29 days'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-41 days','-143 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-29 days','-65 minutes'))",
+   "params": [
+    "rlb-14",
+    "{{me}}",
+    "Educated",
+    "Tara Westover"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, notes, created_at, updated_at) VALUES (?, ?, ?, ?, 233, NULL, 5, date('now','-33 days'), ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-45 days','-154 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-33 days','-70 minutes'))",
+   "params": [
+    "rlb-15",
+    "{{me}}",
+    "Holes",
+    "Louis Sachar",
+    "Second time through, still perfect."
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, created_at, updated_at) VALUES (?, ?, ?, ?, 333, NULL, 5, date('now','-38 days'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-50 days','-165 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-38 days','-75 minutes'))",
+   "params": [
+    "rlb-16",
+    "{{me}}",
+    "Station Eleven",
+    "Emily St. John Mandel"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, created_at, updated_at) VALUES (?, ?, ?, ?, 369, NULL, 4, date('now','-43 days'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-55 days','-176 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-43 days','-80 minutes'))",
+   "params": [
+    "rlb-17",
+    "{{me}}",
+    "The Martian",
+    "Andy Weir"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, notes, created_at, updated_at) VALUES (?, ?, ?, ?, 393, NULL, 4, date('now','-48 days'), ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-60 days','-187 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-48 days','-85 minutes'))",
+   "params": [
+    "rlb-18",
+    "{{me}}",
+    "Circe",
+    "Madeline Miller",
+    "Book club pick for September."
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, created_at, updated_at) VALUES (?, ?, ?, ?, 384, NULL, 3, date('now','-54 days'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-66 days','-198 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-54 days','-90 minutes'))",
+   "params": [
+    "rlb-19",
+    "{{me}}",
+    "Where the Crawdads Sing",
+    "Delia Owens"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, notes, created_at, updated_at) VALUES (?, ?, ?, ?, 208, NULL, 4, date('now','-59 days'), ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-71 days','-209 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-59 days','-95 minutes'))",
+   "params": [
+    "rlb-20",
+    "{{me}}",
+    "The BFG",
+    "Roald Dahl",
+    "Snozzcumbers were a hit."
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, created_at, updated_at) VALUES (?, ?, ?, ?, 443, NULL, 4, date('now','-66 days'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-78 days','-220 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-66 days','-100 minutes'))",
+   "params": [
+    "rlb-21",
+    "{{me}}",
+    "Sapiens",
+    "Yuval Noah Harari"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, created_at, updated_at) VALUES (?, ?, ?, ?, 378, NULL, 5, date('now','-72 days'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-84 days','-231 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-72 days','-105 minutes'))",
+   "params": [
+    "rlb-22",
+    "{{me}}",
+    "The Song of Achilles",
+    "Madeline Miller"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, created_at, updated_at) VALUES (?, ?, ?, ?, 341, NULL, 4, date('now','-79 days'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-91 days','-242 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-79 days','-110 minutes'))",
+   "params": [
+    "rlb-23",
+    "{{me}}",
+    "Anxious People",
+    "Fredrik Backman"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, notes, created_at, updated_at) VALUES (?, ?, ?, ?, 240, NULL, 5, date('now','-85 days'), ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-97 days','-253 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-85 days','-115 minutes'))",
+   "params": [
+    "rlb-24",
+    "{{me}}",
+    "Matilda",
+    "Roald Dahl",
+    "Asked for it three nights running."
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, created_at, updated_at) VALUES (?, ?, ?, ?, 387, NULL, 3, date('now','-93 days'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-105 days','-264 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-93 days','-120 minutes'))",
+   "params": [
+    "rlb-25",
+    "{{me}}",
+    "The Night Circus",
+    "Erin Morgenstern"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, notes, created_at, updated_at) VALUES (?, ?, ?, ?, 304, NULL, 5, date('now','-101 days'), ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-113 days','-275 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-101 days','-125 minutes'))",
+   "params": [
+    "rlb-26",
+    "{{me}}",
+    "Born a Crime",
+    "Trevor Noah",
+    "Listened on the school run — the audiobook is the way to do it."
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, created_at, updated_at) VALUES (?, ?, ?, ?, 360, NULL, 4, date('now','-110 days'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-122 days','-286 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-110 days','-130 minutes'))",
+   "params": [
+    "rlb-27",
+    "{{me}}",
+    "Remarkably Bright Creatures",
+    "Shelby Van Pelt"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, created_at, updated_at) VALUES (?, ?, ?, ?, 279, NULL, 5, date('now','-118 days'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-130 days','-297 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-118 days','-135 minutes'))",
+   "params": [
+    "rlb-28",
+    "{{me}}",
+    "The Wild Robot",
+    "Peter Brown"
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, notes, created_at, updated_at) VALUES (?, ?, ?, ?, 612, NULL, 4, date('now','-127 days'), ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-139 days','-308 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-127 days','-140 minutes'))",
+   "params": [
+    "rlb-29",
+    "{{me}}",
+    "Dune",
+    "Frank Herbert",
+    "Finally."
+   ]
+  },
+  {
+   "sql": "INSERT INTO app_reading_log__books (id, member_id, title, author, pages, current_page, rating, finished_at, created_at, updated_at) VALUES (?, ?, ?, ?, 237, NULL, 4, date('now','-140 days'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-152 days','-319 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-140 days','-145 minutes'))",
+   "params": [
+    "rlb-30",
+    "{{me}}",
+    "Bird by Bird",
+    "Anne Lamott"
+   ]
+  }
+ ]
+}
